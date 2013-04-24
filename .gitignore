@@ -5,7 +5,9 @@
 *.mexglx
 *.mexmac
 *.mexmaci
+*.mexmaci64
 *.mexa64
+*.mex
 
 # Python complied files
 *.pyc
@@ -19,14 +21,28 @@ doc
 build
 toolbox/mexw32
 toolbox/mexmaci
+toolbox/mexmaci64
 toolbox/mexmac
 toolbox/mexglx
 toolbox/mexa64
 toolbox/mexw64
+toolbox/mex
 toolbox/noprefix
 
+# Xcode
+vlfeat.xcodeproj/*.mode1
 vlfeat.xcodeproj/*.mode1v3
+vlfeat.xcodeproj/*.mode2v3
 vlfeat.xcodeproj/*.pbxuser
+vlfeat.xcodeproj/*.perspective*
+vlfeat.xcodeproj/*.xcworkspace
+vlfeat.xcodeproj/xcuserdata
+
+# Visual C++
+vlfeat.suo
+vlfeat.ncb
+vlfeat.vcproj.*.user
+vc/*
 
 # Emacs backups
 *~
@@ -34,8 +50,5 @@ vlfeat.xcodeproj/*.pbxuser
 # Vim swap files
 .*.swp
 
-# Wiki pages
-*.wiki
-wiki/.mediawiki.errors
-wiki/.mediawiki_cookies.dat
-
+# Opt directory
+opt/*

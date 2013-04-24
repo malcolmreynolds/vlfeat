@@ -1,7 +1,7 @@
 function [Iseg labels map gaps E] = vl_quickseg(I, ratio, kernelsize, maxdist)
 % VL_QUICKSEG Produce a quickshift segmentation of a grayscale or color image
 %   [ISEG LABELS MAPS GAPS E] = VL_QUICKSEG(I, RATIO, KERNELSIZE, MAXDIST)
-% 
+%
 % Produces a Quickshift segmentation of an image. See VL_QUICKSHIFT for more
 % details.
 %
@@ -12,7 +12,7 @@ function [Iseg labels map gaps E] = vl_quickseg(I, ratio, kernelsize, maxdist)
 %               Small ratio gives more importance to the spatial component.
 %               Note that distance calculations happen in unnormalized image
 %               coordinates, so RATIO should be adjusted to compensate for
-%               larger images.  
+%               larger images.
 %   KERNELSIZE  The standard deviation of the parzen window density estimator.
 %   MAXDIST     The maximum distance between nodes in the quickshift tree. Used
 %               to cut links in the tree to form the segmentation.
@@ -25,7 +25,15 @@ function [Iseg labels map gaps E] = vl_quickseg(I, ratio, kernelsize, maxdist)
 %          nearest pixel which increases the estimate of the density
 %   GAPS   GAPS as returned by VL_QUICKSHIFT: For each pixel, the distance to
 %          the nearest pixel which increases the estimate of the density
-%   E      E as returned by VL_QUICKSHIFT: The estimate of the density 
+%   E      E as returned by VL_QUICKSHIFT: The estimate of the density
+%
+%   See also: VL_HELP().
+
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 I = im2double(I);
 % Add less than one pixel noise to break ties caused by constant regions in an

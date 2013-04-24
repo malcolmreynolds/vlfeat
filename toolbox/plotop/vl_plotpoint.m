@@ -11,23 +11,23 @@ function h=vl_plotpoint(V,varargin)
 %   rather it passess any extra argument to the underlying plot
 %   function.
 %
-%   See also:: PLOT(), PLOT3(), VL_HELP().
+%   See also: PLOT(), PLOT3(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
-if length(varargin) == 0 
+if length(varargin) == 0
   varargin = {'.'};
 end
 
 switch size(V,1)
   case 2
     h=plot(V(1,:),V(2,:),varargin{:}) ;
-  case 3 
+  case 3
     h=plot3(V(1,:),V(2,:),V(3,:),varargin{:}) ;
   otherwise
-    error(['V must be either 2xK or 3xK.']) ;          
+    error(['V must be either 2xK or 3xK.']) ;
 end

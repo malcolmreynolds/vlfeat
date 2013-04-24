@@ -15,21 +15,21 @@ function sel = vl_clickpoint(V,N,varargin)
 %
 %   VL_CLICKPOINT() accepts the following options:
 %
-%   PlotMarker [0]::
+%   PlotMarker:: [0]
 %     Put a marker as points are selected. The markers are deleted on
 %     exiting the function.
 %
-%   See also:: VL_CLICK(), VL_HELP().
+%   See also: VL_CLICK(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 plot_marker = 0 ;
 for k=1:2:length(varargin)
-  switch lower(varargin{k}) 
+  switch lower(varargin{k})
     case 'plotmarker'
       plot_marker = varargin{k+1} ;
     otherwise
@@ -55,11 +55,11 @@ hold on ;
 
 sel = [] ;
 h = [] ;
-for n=1:N 
+for n=1:N
   P=vl_click ;
   if ~isempty( P )
     d = (V(1,:)-P(1)).^2 + (V(2,:)-P(2)).^2;
-    [drop,v]=min(d(:)) ;   
+    [drop,v]=min(d(:)) ;
     if(plot_marker)
       h=[h plot(V(1,v),V(2,v),'go')] ;
     end
@@ -70,13 +70,10 @@ for n=1:N
 end
 
 if ~is_hold
-  hold off ;  
+  hold off ;
 end
 
 if( plot_marker )
   pause(.1);
   delete(h) ;
 end
-
-
-

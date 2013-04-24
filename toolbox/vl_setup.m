@@ -7,42 +7,59 @@ function path = vl_setup(varargin)
 %   contain the VL_ prefix. For example, with this option it is
 %   possible to use SIFT() instead of VL_SIFT().
 %
-%   VL_SETUP('TEST') adds VLFeat test functions.
+%   VL_SETUP('TEST') or VL_SETUP('XTEST') adds VLFeat unit test
+%   function suite. See also VL_TEST().
 %
 %   VL_SETUP('QUIET') does not print the greeting message.
 %
-%   See also:: VL_HELP(), VL_ROOT().
-%   Authors:: Andrea Vedaldi and Brian Fulkerson
+%   See also: VL_ROOT(), VL_HELP().
 
-% AUTORIGHTS
+% Authors: Andrea Vedaldi and Brian Fulkerson
+
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 noprefix = false ;
-quiet = false ;
-test = false ;
+quiet = true ;
+xtest = false ;
 demo = false ;
 
 for ai=1:length(varargin)
   opt = varargin{ai} ;
   switch lower(opt)
-    case {'noprefix', 'usingvl'} 
+    case {'noprefix', 'usingvl'}
       noprefix = true ;
-    case {'test'}
-      test = true ;
+    case {'test', 'xtest'}
+      xtest = true ;
     case {'demo'}
       demo = true ;
     case {'quiet'}
       quiet = true ;
+    case {'verbose'}
+      quiet = false ;
+    otherwise
+      error('Unknown option ''%s''.', opt) ;
   end
 end
 
-bindir = mexext ;
-if strcmp(bindir, 'dll'), bindir = 'mexw32' ; end
+if exist('octave_config_info')
+  bindir = 'octave' ;
+else
+  bindir = mexext ;
+  if strcmp(bindir, 'dll'), bindir = 'mexw32' ; end
+end
+bindir = fullfile('mex',bindir) ;
+
+% Do not use vl_root() to avoid conflicts with other VLFeat
+% installations.
 
 [a,b,c] = fileparts(mfilename('fullpath')) ;
 [a,b,c] = fileparts(a) ;
-path = a ;
+root = a ;
 
-root = vl_root ;
 addpath(fullfile(root,'toolbox'             )) ;
 addpath(fullfile(root,'toolbox','aib'       )) ;
 addpath(fullfile(root,'toolbox','geometry'  )) ;
@@ -54,22 +71,28 @@ addpath(fullfile(root,'toolbox','plotop'    )) ;
 addpath(fullfile(root,'toolbox','quickshift')) ;
 addpath(fullfile(root,'toolbox','sift'      )) ;
 addpath(fullfile(root,'toolbox','special'   )) ;
+addpath(fullfile(root,'toolbox','slic'      )) ;
 addpath(fullfile(root,'toolbox',bindir      )) ;
 
 if noprefix
   addpath(fullfile(root,'toolbox','noprefix')) ;
 end
 
-if test
-  addpath(fullfile(root,'toolbox','test')) ;
+if xtest
+  addpath(fullfile(root,'toolbox','xtest')) ;
 end
 
 if demo
   addpath(fullfile(root,'toolbox','demo')) ;
 end
 
-
-fprintf('** Welcome to the VLFeat Toolbox **\n') ;
+if ~quiet
+  if exist('vl_version') == 3
+    fprintf('VLFeat %s ready.\n', vl_version) ;
+  else
+    warning('VLFeat does not seem to be installed correctly. Make sure that the MEX files are compiled.') ;
+  end
+end
 
 if nargout == 0
   clear path ;

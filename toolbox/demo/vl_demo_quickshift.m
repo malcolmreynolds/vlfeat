@@ -8,14 +8,14 @@ figure(1) ; clf ;
 % --------------------------------------------------------------------
 %                                                        Load a figure
 % --------------------------------------------------------------------
-I = imread(fullfile(vl_root,'data','a.jpg')) ;
+I = imread(fullfile(vl_root,'data','roofs1.jpg')) ;
 
 image(I) ;
 axis equal off tight ;
 vl_demo_print('quickshift_image') ;
 
 % --------------------------------------------------------------------
-%                                     Create a quickshift segmentation 
+%                                     Create a quickshift segmentation
 % --------------------------------------------------------------------
 
 ratio = 0.5;
@@ -38,7 +38,7 @@ vl_demo_print('quickshift_qseg_2') ;
 maxdist = 50;
 ndists = 10;
 Iedge = vl_quickvis(I, ratio, kernelsize, maxdist, ndists);
-imagesc(Iedge); 
+imagesc(Iedge);
 axis equal off tight;
 colormap gray;
 vl_demo_print('quickshift_qvis') ;

@@ -9,14 +9,17 @@
 %
 %   INTHIST is the [M,N,K] integral histogram obtained by integrating
 %   the label maps (an integral histogram is just an array of K
-%   integral images, one for each of the K labels).
+%   integral images, one for each of the K labels). All layers of
+%   labels are accumulated to the same integral histogram.
 %
 %   The total number of labels K is obtained as the maximum value of
 %   LABELS. VL_INTHIST(..., 'NUMLABELS', K) specifies the number of
 %   labels explicitly.
 %
 %   VL_INTHIST(..., 'MASS', MASSES) specifies a mass MASSES for each
-%   entry of LABELS. MASSES can be either of class UINT32 or
-%   DOUBLE, and the class of INTHIST varies accordingly.
-%   
-%   Author:: Andrea Vedaldi
+%   entry of LABELS. MASSES can be either of class UINT32 or DOUBLE,
+%   and the class of INTHIST varies accordingly.
+%
+%   See also: VL_IMINTEGRAL(), VL_SAMPLEINTHIST(), VL_HELP().
+
+% Authors: Andrea Vedaldi

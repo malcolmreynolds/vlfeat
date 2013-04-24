@@ -1,3 +1,11 @@
+/*
+Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+All rights reserved.
+
+This file is part of the VLFeat library and is made available under
+the terms of the BSD license (see the COPYING file).
+*/
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -20,7 +28,7 @@ int
 main (int argc, char *argv[])
 {
   int ch ;
-  
+
   printf("*** parsing options: start\n") ;
 
   while ((ch = getopt_long(argc, argv, "hbf:", longopts, 0)) != -1) {
@@ -31,12 +39,12 @@ main (int argc, char *argv[])
         printf("test_getopt_long: test VLFeat implementation of this function.\n"
                " --help -h      this message\n"
                " --buffy -b     option with no arguments\n"
-               " --flouride -f  option with required argumetn\n"
+               " --fluoride -f  option with required argument\n"
                " --daggerset    auto option with no arguments\n"
                " --daggerrunset auto option with no argument\n"
                " --spike        long option with optional argument\n") ;
         break;
-        
+
     case 'b':
       printf("option `b' or `buffy'\n") ;
       break;
@@ -52,7 +60,7 @@ main (int argc, char *argv[])
     case 0:
       printf("automatic longoption (daggerset=%d)\n", daggerset) ;
       break ;
-      
+
     case  '?' :
       printf("illegal option or missing argument\n") ;
       break ;
@@ -62,14 +70,14 @@ main (int argc, char *argv[])
       break ;
 
     default:
-      assert (0) ;
-    }    
+      abort() ;
+    }
   }
 
   printf("*** parsing options: end\n");
   {
     int i ;
-    for(i = optind ; i < argc ; ++i) 
+    for(i = optind ; i < argc ; ++i)
 		printf("non-option: '%s'\n", argv[i]) ;
   }
 

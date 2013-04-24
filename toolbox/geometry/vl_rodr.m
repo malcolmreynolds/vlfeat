@@ -14,6 +14,10 @@
 %   each column (or equivalently matrix with 3*K elements). In this
 %   case R and DR are arrays with K slices, one per rotation.
 %
-%   See also:: VL_IRODR(), VL_HELP().
+%   See also: VL_IRODR(), VL_HELP().
 
-% AUTORIGHTS
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).

@@ -12,21 +12,21 @@ function P = vl_click(N,varargin) ;
 %
 %  VL_CLICK() accepts the following options:
 %
-%  PlotMarker [0]::
+%  PlotMarker:: [0]
 %    Plot a marker as points are selected. The markers are deleted on
 %    exiting the function.
 %
-%  See also:: VL_CLICKPOINT(), HELP_VLEAT().
+%  See also: VL_CLICKPOINT(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 plot_marker = 0 ;
 for k=1:2:length(varargin)
-  switch lower(varargin{k}) 
+  switch lower(varargin{k})
     case 'plotmarker'
       plot_marker = varargin{k+1} ;
     otherwise
@@ -66,13 +66,13 @@ while size(P,2) < N
     break ;
   end
   P = [P data.P] ;
-  if( plot_marker ) 
+  if( plot_marker )
     h=[h plot(data.P(1),data.P(2),'rx')] ;
   end
 end
-  
+
 if ~is_hold
-  hold off ;  
+  hold off ;
 end
 
 if( plot_marker )

@@ -2,6 +2,21 @@
 
 <group>
 
+<pagestyle>
+#content table.checker {
+    border-collapse: collapse ;
+    margin-left: auto ;
+    margin-right: auto ;
+}
+#content table.checker td {
+    background-color: #f6f6f6 ;
+    border: none ;
+    border-top: 1px solid #DDD ;
+    border-bottom: 1px solid #DDD ;
+    padding: 0.5em ;
+}
+</pagestyle>
+
 <p>These instructions explain how to use VLFeat from the command line
 (shell).</p>
 
@@ -14,29 +29,36 @@ this directory.</p>
 in <code>VLFEATROOT/bin/ARCH</code>. Here <code>ARCH</code> denotes
 the subdirectory relative to your architecture (e.g. <code>mac</code>
 for Mac OS X PPC, <code>maci</code> for Mac OS X
-Intel, <code>glx</code> for Linux, and so on). For instance, to run
-the SIFT feature extraction code type</p>
+Intel, <code>glnx86</code> for Linux, and so on). For the sake of
+illustration, the following table gives the path to the SIFT feature
+extraction program for the varius architectures:</p>
 
+<div class="p">
 <table class="checker">
 <tr>
 <th>Platform</th>
 <th><code>ARCH</code></th>
-<th>Command to type</th>
+<th>Path to command</th>
 </tr>
 <tr>
 <td>Windows 32</td>
-<td><code>w32</code></td>
+<td><code>win32</code></td>
 <td><code>VLFEATROOT\bin\w32\sift.exe</code></td>
 </tr>
 <tr>
 <td>Windows 64</td>
-<td><code>w64</code></td>
+<td><code>win64</code></td>
 <td><code>VLFEATROOT\bin\w64\sift.exe</code></td>
 </tr>
 <tr>
-<td>Mac Intel</td>
+<td>Mac Intel 32</td>
 <td><code>maci</code></td>
 <td><code>VLFEATROOT/bin/maci/sift</code></td>
+</tr>
+<tr>
+<td>Mac Intel 64</td>
+<td><code>maci64</code></td>
+<td><code>VLFEATROOT/bin/maci64/sift</code></td>
 </tr>
 <tr>
 <td>Mac PPC</td>
@@ -45,25 +67,25 @@ the SIFT feature extraction code type</p>
 </tr>
 <tr>
 <td>Linux 32</td>
-<td><code>glx</code></td>
-<td><code>VLFEATROOT/bin/glx/sift</code></td>
+<td><code>glnx86</code></td>
+<td><code>VLFEATROOT/bin/glnx86/sift</code></td>
 </tr>
 <tr>
 <td>Linux 64</td>
-<td><code>a64</code></td>
-<td><code>VLFEATROOT/bin/a64/sift</code></td>
+<td><code>glnxa64</code></td>
+<td><code>VLFEATROOT/bin/glnxa64/sift</code></td>
 </tr>
 </table>
+</div>
 
 <p>All commands have a corresponding man page found
 in <code>VLFEATROOT/src</code>.  For UNIX based systems, the man pages
 can be viewed with the <code>man</code> utility. For instance
 </p>
 
-<pre>
+<precode type='sh'>
 > man VLFEATROOT/src/sift.1
-</pre>
-
+</precode>
 
 <p>It might be convenient to add VLFeat to the system search paths. In
 Linux and Mac OS X this involves modifying the <code>PATH</code>
@@ -71,10 +93,10 @@ and <code>MANPATH</code> environment variables. The exact details may
 vary, but it should be enough to add the following to your
 <code>~/.bash_profile</code>:</p>
 
-<pre>
+<precode type='sh'>
 export PATH=VLFEATROOT/bin/ARCH:$PATH
 export MANPATH=VLFEATROOT/src:$MANPATH
-</pre>
+</precode>
 
 <p>Alternatively, you can copy the executables and man pages to
 appropriate system-wide directories.</p>

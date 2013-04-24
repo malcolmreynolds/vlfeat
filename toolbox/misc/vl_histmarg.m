@@ -4,17 +4,20 @@ function H = vl_histmarg(H, dims)
 %   dimensions DIMS. This is done by summing out all dimensions not
 %   listed in DIMS and deleting them.
 %
-%   REMARK. If DIMS lists only one dimension, the returned histogram H
-%   is a column vector. Notice that this way of deleting dimensions is
-%   not always consistent with the SQUEEZE function.
+%   Remark::
+%     If DIMS lists only one dimension, the returned histogram H is a
+%     column vector. Notice that this way of deleting dimensions is
+%     not always consistent with the SQUEEZE function.
 %
-%   See also:: VL_HELP().
+%   See also: VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Authors: Andrea Vedaldi
+
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 sz = size(H) ;
 

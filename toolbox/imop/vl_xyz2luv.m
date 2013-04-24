@@ -7,13 +7,13 @@ function J=vl_xyz2luv(I,il)
 %   illuminant are supported: A, B, C, E, D50, D55, D65, D75, D93.  IL
 %   is the name of the illuminant.
 %
-%   See also:: VL_XYZ2LAB(), VL_HELP().
+%   See also: VL_XYZ2LAB(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 if nargin < 2
   il='E' ;
@@ -22,11 +22,11 @@ end
 switch lower(il)
   case 'a'
     xw = 0.4476 ;
-    yw = 0.4074 ;  
+    yw = 0.4074 ;
   case 'b'
     xw = 0.3324 ;
     yw = 0.3474 ;
-  case 'c' 
+  case 'c'
     xw = 0.3101 ;
     yw = 0.3162 ;
   case 'e'

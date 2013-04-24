@@ -4,13 +4,17 @@ function [dWx,dWy] = vl_dwaffine(x,y)
 %   warp [WX; WY] = [A T] [X; Y] with respect to the parameters A,T
 %   computed at points X,Y.
 %
-%   See also:: VL_WAFFINE(), VL_HELP().
+%   See also: VL_WAFFINE(), VL_HELP().
 
-% AUTORIGHTS
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 % dW = [ kron(x',I) I ]
-%    | 
-%    = [ x1  0  x2  0 1 0 ] 
+%    |
+%    = [ x1  0  x2  0 1 0 ]
 %      [  0 x1   0 x2 0 1 ]
 
 z = zeros(length(x(:)),1) ;

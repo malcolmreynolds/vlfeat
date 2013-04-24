@@ -3,7 +3,11 @@
 # author:      Brian Fulkerson and Andrea Vedaldi
 # description: MDoc main
 
-# AUTORIGHTS
+# Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+# All rights reserved.
+#
+# This file is part of the VLFeat library and is made available under
+# the terms of the BSD license (see the COPYING file).
 
 import sys, os, re, shutil
 import subprocess, signal
@@ -12,9 +16,8 @@ from wikidoc import wikidoc
 from formatter import Formatter
 from optparse import OptionParser
 
-
 excludeRegexList = []
-format           = 'html' 
+format           = 'html'
 verb             = 0
 sitexml          = ""
 
@@ -26,7 +29,7 @@ them to html documentation, placing the results in docdir."""
 parser = OptionParser(usage=usage)
 
 parser.add_option(
-    "-f", "--format", 
+    "-f", "--format",
     dest    = "format",
     default = "html",
     action  = "store",
@@ -34,19 +37,33 @@ parser.add_option(
     metavar = "STRING")
 
 parser.add_option(
-    "-x", "--exclude", 
+    "-x", "--exclude",
     dest    = "excludeList",
     action  = "append",
     type    = "string",
     help    = "exclude files matching the specified regexp")
 
 parser.add_option(
-    "-v", "--verbose", 
+    "-v", "--verbose",
     dest    = "verb",
     default = False,
     action  = "store_true",
     help    = "print debug information")
 
+parser.add_option(
+    "-t", "--helptoc",
+    dest    = "helptoc",
+    default = False,
+    action  = "store_true",
+    help    = "create helptoc.xml")
+
+parser.add_option(
+    "", "--helptoc-toolbox-name",
+    dest  = "helptoc_toolbox_name",
+    default = "Example",
+    action  = "store",
+    type = "string",
+    help    = "helptoc.xml: Toolbox Name")
 
 # --------------------------------------------------------------------
 def runcmd(cmd):
@@ -65,17 +82,17 @@ def runcmd(cmd):
 
 # --------------------------------------------------------------------
 class MFile:
-# --------------------------------------------------------------------    
+# --------------------------------------------------------------------
     """
     MFile('sub/file.m') represents a MATLAB M-File.
     """
     def __init__(self, basedir, dirname, name):
         funcname = os.path.splitext(name)[0]
-        
-        self.funcname = funcname.upper()
+
+        self.funcname = funcname #.upper()
         self.path     = os.path.join(basedir, dirname, name)
-        self.mdocname = os.path.join(dirname, funcname).replace(os.path.sep, '_')
-        self.webname  = os.path.join(dirname, funcname).replace(os.path.sep, '.')
+        self.mdocname = funcname.replace(os.path.sep, '_')
+        self.webname  = funcname.replace(os.path.sep, '.')
         self.htmlname = self.mdocname + '.html'
         self.wikiname = 'MDoc_' + (os.path.join(dirname, funcname)
                                    .upper().replace(os.path.sep, '_'))
@@ -100,6 +117,9 @@ class MFile:
         elif format == 'wiki':
             return self.wikiname
 
+    def __cmp__(self, other):
+        return cmp(self.webname, other.webname)
+
     def __str__(self):
         str  = "MFile: %s\n" % (self.funcname)
         str += "  path    : %s\n" % (self.path)
@@ -110,7 +130,7 @@ class MFile:
 
 # --------------------------------------------------------------------
 class Node:
-# --------------------------------------------------------------------    
+# --------------------------------------------------------------------
     """
     A Node N represents a node in the toolbox hierechy. A node is a
     directory in the toolbox hierarchy and contains both M-files and
@@ -120,7 +140,7 @@ class Node:
         self.dirname = dirname
         self.children = []
         self.mfiles   = []
-        
+
     def addChildNode(self, node):
         "Add a child node (toolbox subdirectory) to this node"
         self.children.append(node)
@@ -139,18 +159,24 @@ class Node:
                 page += "<ul>\n"
                 for m in self.mfiles:
                     page += "<li>"
-                    page += "<b><a href='%s'>%s</a></b>" % (m.getRef(format), 
+                    page += "<b><a href='%s'>%s</a></b>" % (m.getRef(format),
                                                             m.funcname)
                     page += " %s" % (m.brief)
                     page += "</li>"
                 page += "</ul>\n"
-        else:
+        elif format == 'wiki':
             if len(self.mfiles) > 0:
                 if depth > 1:
                     page += "=== %s ===\n" % (self.dirname.upper())
                 for m in self.mfiles:
                     page += "* [[%s|%s]]" % (m.getRef(format), m.funcname)
                     page += " %s\n" % (m.brief)
+        elif format == 'helptoc':
+            for m in self.mfiles:
+                page += "<tocitem target='%s'>%s</tocitem>\n" % (m.getRef('html'),
+                                                                 m.funcname)
+        else:
+            assert False
         for n in self.children:
             page += n.toIndexPage(format, depth+1)
         return page
@@ -163,8 +189,8 @@ class Node:
                 xml += \
                     "<page id='%s' name='%s' title='%s - %s' hide='yes'>" \
                     "<div class='mdoc'>" \
-                    "<include src='%s'/></div></page>\n" % (m.getId('web'), m.funcname, 
-                                                            dirname, 
+                    "<include src='%s'/></div></page>\n" % (m.getId('web'), m.funcname,
+                                                            dirname,
                                                             m.funcname, m.htmlname)
             else:
                 xml += \
@@ -172,7 +198,7 @@ class Node:
                     "<div class='mdoc'>" \
                     "<include src='%s'/></div></page>\n" % (m.getId('web'), m.funcname,
                                                             m.funcname, m.htmlname)
-                
+
         for n in self.children:
             xml += n.toIndexXML() ;
         return xml
@@ -213,12 +239,12 @@ def extract(path):
     seenpercent  = False
 
     for l in open(path):
-        
+
         # Remove whitespace and newline
         line = l.strip().lstrip()
 
         if line.startswith('%'): seenpercent = True
-        if line.startswith('function'): 
+        if line.startswith('function'):
             seenfunction = True
             continue
         if not line.startswith('%'):
@@ -249,13 +275,14 @@ def xscan(baseDir, subDir=''):
     NODE = xscan(BASEDIR) recusrively scans the directory BASEDIR and
     construct the toolbox hierarchy rooted at NODE.
     """
-    
+
     node = Node(subDir)
     dir = os.listdir(os.path.join(baseDir, subDir))
     fileNames  = [f for f in dir if os.path.isfile(
                   os.path.join(baseDir, subDir, f))]
     subSubDirs = [s for s in dir if os.path.isdir (
                   os.path.join(baseDir, subDir, s))]
+    fileNames.sort()
 
     # Scan M-FileNames
     for fileName in fileNames:
@@ -284,7 +311,7 @@ def xscan(baseDir, subDir=''):
 
 # --------------------------------------------------------------------
 def breadCrumb(m):
-# --------------------------------------------------------------------    
+# --------------------------------------------------------------------
     breadcrumb = "<ul class='breadcrumb'>"
     if format == 'web':
         breadcrumb += "<li><a href='%pathto:mdoc;'>Index</a></li>"
@@ -294,13 +321,13 @@ def breadCrumb(m):
     if m.next: breadcrumb += "<li><a href='%s'>Next</a></li>" % m.next.getRef(format)
     breadcrumb += "</ul>"
     #breadcrumb += "<span class='path'>%s</span>" % m.node.dirname.upper()
-    
+
     return breadcrumb
 
 # --------------------------------------------------------------------
 if __name__ == '__main__':
 # --------------------------------------------------------------------
-    
+
     #
     # Parse comand line options
     #
@@ -309,6 +336,7 @@ if __name__ == '__main__':
 
     if options.verb: verb = 1
     format = options.format
+    helptoc = options.helptoc
 
     print options.excludeList
     for ex in options.excludeList:
@@ -318,7 +346,7 @@ if __name__ == '__main__':
     if len(args) != 2:
         parser.print_help()
         sys.exit(2)
-    
+
     basedir = args[0]
     docdir  = args[1]
 
@@ -349,8 +377,8 @@ if __name__ == '__main__':
             if prev:
                 prev.next = m
                 m.prev = prev
-            prev = m            
-            func = m.funcname
+            prev = m
+            func = m.funcname.upper()
             mfiles[func] = m
             linkdict[func] = m.getRef(format)
     if verb:
@@ -362,9 +390,9 @@ if __name__ == '__main__':
 
     # ----------------------------------------------------------------
     #                          Extract comment block and run formatter
-    # ----------------------------------------------------------------        
+    # ----------------------------------------------------------------
     for (func, m) in mfiles.items():
-        
+
         if format == 'wiki':
             outname = m.wikiname
         elif format == 'html':
@@ -390,7 +418,7 @@ if __name__ == '__main__':
 
             content = formatter.toDOM().toxml("UTF-8")
             content = content[content.find('?>')+2:]
-            
+
         # add decorations
         if not format == 'wiki':
             content = breadCrumb(m) + content
@@ -405,11 +433,11 @@ if __name__ == '__main__':
             f = open(os.path.join(docdir, m.htmlname), 'w')
         f.write(content)
         f.close()
-        
+
     # ----------------------------------------------------------------
     #                                                  Make index page
     # ----------------------------------------------------------------
-    
+
     page = ""
     if format == 'html':
         pagename = 'index.html'
@@ -422,7 +450,6 @@ if __name__ == '__main__':
         page = "== Documentation ==\n"
         page += toolbox.toIndexPage('wiki')
 
-
     f = open(os.path.join(docdir, pagename), 'w')
     f.write(page)
     f.close()
@@ -433,6 +460,26 @@ if __name__ == '__main__':
         f.close()
 
     # ----------------------------------------------------------------
+    #                                                 Make helptoc.xml
+    # ----------------------------------------------------------------
+
+    if helptoc:
+        page = """<?xml version='1.0' encoding="utf-8"?>
+<toc version="2.0">
+    <tocitem target="../index.html">%s
+        <tocitem target="%s" image="HelpIcon.FUNCTION">Functions
+""" % (options.helptoc_toolbox_name, pagename)
+        page += toolbox.toIndexPage('helptoc')
+        page += """
+   </tocitem>
+ </tocitem>
+</toc>
+"""
+        f = open(os.path.join(docdir, "helptoc.xml"), 'w')
+        f.write(page)
+        f.close()
+
+    # ----------------------------------------------------------------
     #                                            Checkin files to wiki
     # ----------------------------------------------------------------
     def towiki(docdir, pagename):
@@ -440,16 +487,16 @@ if __name__ == '__main__':
         runcmd("cd %s ; mvs update %s" % (docdir, pagenamewiki))
         if verb:
             print "mdoc: converting", pagename, "to", pagenamewiki
-        wikidoc(os.path.join(docdir, pagenamewiki), 
+        wikidoc(os.path.join(docdir, pagenamewiki),
                 os.path.join(docdir, pagename))
         runcmd("cd %s ; mvs commit -M -m 'Documentation update' %s" % (docdir, pagenamewiki))
- 
+
     if format == 'wiki' :
         try:
             towiki(docdir, pagename)
         except (KeyboardInterrupt, SystemExit):
             sys.exit(1)
-            
+
         for (func, m) in mfiles.items():
             try:
                 towiki(docdir, m.wikiname)

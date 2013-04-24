@@ -1,68 +1,88 @@
-# file:       Makefile.mak
-# author:     Andrea Vedaldi
-# author:     Brian Fulkerson
+# file: Makefile.mak
 # descrption: Microsoft NMake makefile
+# authors: Andrea Vedaldi, Brian Fulkerson, Mircea Cimpoi
+
+# Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+# All rights reserved.
+#
+# This file is part of the VLFeat library and is made available under
+# the terms of the BSD license (see the COPYING file).
 
 # --------------------------------------------------------------------
 #                                                        Customization
 # --------------------------------------------------------------------
+# To modify this script to run on your platform it is usually
+# sufficient to modify the following variables:
 #
-# - MSVCR    : the file name of msvcr__.dll for your compiler
-# - MSVCRLOC : must point to the location of msvcr__.dll for your compiler
-# - MATLABROOT : must point to MATLAB root directory (undef = no MEX support)
-# - MATLABLIB : Location of the external libs, such as libmex and libmx.
+# ARCH: Either win32 or win64 [win64]
+# DEBUG: Set to yes to ativate debugging [no]
+# MATLABROOT: Path to MATLAB
+# MSVSVER: Visual Studio version (e.g. 80, 90, 100) [90 for VS 9.0]
+# MSVCROOT: Visual C++ location [$(VCInstallDir)].
+# WINSDKROOT: Windows SDK location [$(WindowsSdkDir)]
+#
+# Note that some of these variables depend on the architecture
+# (either win32 or win64).
 
-ARCH = win32
+VER = 0.9.16
+ARCH = win64
+DEBUG = no
+BRANCH = v$(VER)-$(ARCH)
+MSVSVER = 90
+MSVCROOT = $(VCInstallDir)
+WINSDKROOT = $(WindowsSdkDir)
+GIT = git
 
-VCROOT     = C:\Program Files\Microsoft Visual Studio 9.0\VC
-WINSDKROOT = C:\Program Files\Microsoft SDKs\Windows\v6.0A
-MATLABROOT = C:\Program Files\MATLAB\R2008b
-
-CC         = "$(VCROOT)\bin\cl.exe"
-LINK       = "$(VCROOT)\bin\link.exe"
-MSVCRLOC   = $(VCROOT)\redist\x86\Microsoft.VC90.CRT
-MSVCR      = msvcr90.dll 
-MSVCP      = msvcp90.dll 
-MSVCM      = msvcm90.dll
-MSMANIFEST = Microsoft.VC90.CRT.manifest
-MATLABLIB  = $(MATLABROOT)\extern\lib\win32\microsoft
-MEX_SFX    = mexw32
-
-LFLAGS     = /MACHINE:X86 \
-	     /LIBPATH:"$(VCROOT)\lib" \
-	     /LIBPATH:"$(WINSDKROOT)\lib"
-
-!if "$(ARCH)" == "win64"
-!message === COMPILING FOR 64-BIT ===
-
-VCROOT     = C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC
-WINSDKROOT = C:\Program Files\Microsoft SDKs\Windows\v6.0A
-MATLABROOT = C:\Program Files\MATLAB\R2008b
-
-CC         = "$(VCROOT)\bin\amd64\cl.exe"
-LINK       = "$(VCROOT)\bin\amd64\link.exe"
-MSVCRLOC   = $(VCROOT)\redist\amd64\Microsoft.VC90.CRT
-MSVCR      = msvcr90.dll 
-MSVCP      = msvcp90.dll 
-MSVCM      = msvcm90.dll
-MSMANIFEST = Microsoft.VC90.CRT.manifest
-MATLABLIB  = $(MATLABROOT)\extern\lib\win64\microsoft
-MEX_SFX    = mexw64
-
-LFLAGS     = /MACHINE:X64 \
-	     /LIBPATH:"$(VCROOT)\lib\amd64" \
-	     /LIBPATH:"$(WINSDKROOT)\lib\x64"
+!if "$(MSVCROOT)" == ""
+MSVCROOT = C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC
 !endif
 
-# Here is an example of how the variables might look with a different version
-# of Visual Studio and an alternate location for Matlab
-#MSVCR      = msvcr80.dll 
-#MSVCP      = msvcp80.dll 
-#MSVCM      = msvcm80.dll
-#MSMANIFEST = Microsoft.VC80.CRT.manifest
-#MSVCRLOC   = C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT
-#MATLABROOT = C:\Program Files\MATLAB08a
-#MATLABLIB  = $(MATLABROOT)\extern\lib\$(ARCH)\microsoft
+!if "$(WINSDKROOT)" == ""
+WINSDKROOT = C:\Program Files\Microsoft SDKs\Windows\v6.0A
+!endif
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 32-bit
+!if "$(ARCH)" == "win32"
+!message === COMPILING FOR 32-BIT
+
+MATLABROOT = C:\Program Files (x86)\MATLAB\R2009b
+MEX = "$(MATLABROOT)\bin\mex.bat"
+MEXOPT = "$(MATLABROOT)\bin\win32\mexopts\msvc$(MSVSVER)opts.bat"
+MEXEXT = mexw32
+MEX_FLAGS =
+
+CC = "$(MSVCROOT)\bin\cl.exe"
+LINK = "$(MSVCROOT)\bin\link.exe"
+MSVCR_PATH = $(MSVCROOT)\redist\x86\Microsoft.VC$(MSVSVER).CRT
+
+LFLAGS = /MACHINE:X86 \
+         /LIBPATH:"$(MSVCROOT)\lib" \
+         /LIBPATH:"$(WINSDKROOT)\lib"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 64-bit
+!elseif "$(ARCH)" == "win64"
+!message === COMPILING FOR 64-BIT
+
+MATLABROOT = C:\Program Files\MATLAB\R2009b
+MEX = "$(MATLABROOT)\bin\mex.bat"
+MEXOPT = "$(MATLABROOT)\bin\win64\mexopts\msvc$(MSVSVER)opts.bat"
+MEXEXT = mexw64
+MEX_FLAGS = -largeArrayDims
+
+CC = "$(MSVCROOT)\bin\amd64\cl.exe"
+LINK = "$(MSVCROOT)\bin\amd64\link.exe"
+!if $(MSVSVER) >= 100
+MSVCR_PATH = $(MSVCROOT)\redist\x64\Microsoft.VC$(MSVSVER).CRT
+!else
+MSVCR_PATH = $(MSVCROOT)\redist\amd64\Microsoft.VC$(MSVSVER).CRT
+!endif
+
+LFLAGS = /MACHINE:X64 \
+         /LIBPATH:"$(MSVCROOT)\lib\amd64" \
+         /LIBPATH:"$(WINSDKROOT)\lib\x64"
+!else
+!error ARCH = $(ARCH) is an unknown architecture.
+!endif
 
 # --------------------------------------------------------------------
 #                                                                Flags
@@ -76,168 +96,192 @@ LFLAGS     = /MACHINE:X64 \
 #   _CRT_NO_DEPRECATE  : Do not deprecate `insecure' fscanf, snprintf, ...
 #   __LITTLE_ENDIAN__  : Signal little endian architecture
 #   /I.                : Add VLROOT to include search path
-#   /Z7                : Embedded CodeView debug info in .obj
-#   /MT                : Multi-thread run-time library
+#   /MD                : Multi-thread run-time library dynamically linked
 #   /TC                : Source code is C (not C++)
 #   /W3                : Usa all warnings
 #   /Zp8               : Align structures to 8 bytes
-#   /O2                : Optimize for speed
+#   /Ox                : Turn on optimizations
+#   /D"DEBUG"          : [DEBUG] Turn on debugging in VLFeat
+#   /Z7                : [DEBUG] Embedded CodeView debug info in .obj
+#   /D"NDEBUG"         : [NO DEBUG] Switches off asserts
 #
 # LFLAGS
 #   /NOLOGO            : LINK does not display splash
 #   /INCREMENTAL:NO    : No incremental linking
 #   /MANIFEST          : See DLL HELL below
-#   /DEBUG             : Generate debug info (.pdb files)
+#   /DEBUG             : [DEBUG] Generate debug info (.pdb files)
 #
-# MEX_RC               : MEX .rc file location
-#
-# MEX_CFLAGS
-#   /D_WINDLL          : Signal DLL code
-#   /DMATLAB_MEX_FILE  : Signal MATLAB MEX code
-#   /Itoolbox          : Add toolbox to inc
-#
-# MEX_LFLAGS
-#  /DLL                : Produce a DLL
-#  /EXPORT:mexFunction : Export MEX file entry point
+# MEX_FLAGS
+#   -I                 : Include VLFeat
+#   -L                 : Add a library search path
+#   -l                 : Link a dll
 #
 # ======================= ABOUT THE DLL HELL =========================
 #
-# This makefile compiles VLFeat to make use of the side-by-side 
-# deployment model. In other words, the C runtime library is
-# re-distributed with the application and the appropriate manifest
-# file is embedded in the binaries.
+# This makefile compiles VLFeat to make use of the side-by-side
+# deployment model, redestribtin the appropraite Visual C runtime
+# library with the library and executables. In Visual Studio < 10.0
+# this meant including a manifest file, while in version >= 10.0 this
+# requirement has been relaxed.
 #
 # References:
 #   http://www.codeguru.com/forum/showthread.php?t=408061
+#   http://mariusbancila.ro/blog/2010/03/24/visual-studio-2010-changes-for-vc-part-5
+#   http://social.msdn.microsoft.com/Forums/is/vcgeneral/thread/ca9177b2-2d02-42d8-8892-c6a25e6cfadb
 #
 
-bindir     = bin\$(ARCH)
-mexdir     = toolbox\$(MEX_SFX)
-objdir     = $(bindir)\objs
+bindir = bin\$(ARCH)
+mexdir = toolbox\mex\$(MEXEXT)
+objdir = $(bindir)\objs
 
-CFLAGS     = /nologo /TC /MD \
-             /D"_CRT_SECURE_NO_DEPRECATE" \
-             /D"__LITTLE_ENDIAN__" \
-             /D"VL_SUPPORT_SSE2" \
-             /I. \
-             /W1 /Z7 /Zp8 /O2
+CFLAGS = /nologo /TC /MD \
+         /D"_CRT_SECURE_NO_DEPRECATE" \
+         /D"__LITTLE_ENDIAN__" \
+         /I. \
+         /W1 /Zp8 /Ox
+
+LFLAGS = $(LFLAGS) /NOLOGO \
+         /INCREMENTAL:NO \
+         /MANIFEST
+
+!if "$(DEBUG)" != "no"
+!message === DEBUGGING ON
+CFLAGS = $(CFLAGS) /Z7 /D"DEBUG"
+LFLAGS = $(LFLAGS) /DEBUG
+!else
+!message === DEBUGGING OFF
+CFLAGS = $(CFLAGS) /D"NDEBUG"
+!endif
 
 DLL_CFLAGS = /D"VL_BUILD_DLL"
+EXE_LFLAGS = $(LFLAGS) /LIBPATH:"$(bindir)" vl.lib
+MEX_FLAGS = $(MEX_FLAGS) -f $(MEXOPT) -I. -Itoolbox -L"$(bindir)" -lvl
 
-LFLAGS     = $(LFLAGS) /NOLOGO \
-	     /INCREMENTAL:NO \
-	     /MANIFEST \
-             /DEBUG
+libsrc = \
+  vl\aib.c \
+  vl\array.c \
+  vl\covdet.c \
+  vl\dsift.c \
+  vl\generic.c \
+  vl\getopt_long.c \
+  vl\hikmeans.c \
+  vl\hog.c \
+  vl\homkermap.c \
+  vl\host.c \
+  vl\ikmeans.c \
+  vl\imopv.c \
+  vl\imopv_sse2.c \
+  vl\kdtree.c \
+  vl\kmeans.c \
+  vl\lbp.c \
+  vl\mathop.c \
+  vl\mathop_sse2.c \
+  vl\mser.c \
+  vl\pegasos.c \
+  vl\pgm.c \
+  vl\quickshift.c \
+  vl\random.c \
+  vl\rodrigues.c \
+  vl\scalespace.c \
+  vl\sift.c \
+  vl\slic.c \
+  vl\stringop.c \
+  vl\svmdataset.c
 
-EXE_LFLAGS = $(LFLAGS) \
-	     /LIBPATH:"$(bindir)" vl.lib 
+cmdsrc = \
+  src\aib.c \
+  src\mser.c \
+  src\sift.c \
+  src\test_gauss_elimination.c \
+  src\test_getopt_long.c \
+  src\test_heap-def.c \
+  src\test_host.c \
+  src\test_imopv.c \
+  src\test_mathop.c \
+  src\test_mathop_abs.c \
+  src\test_nan.c \
+  src\test_qsort-def.c \
+  src\test_rand.c \
+  src\test_stringop.c \
+  src\test_svd2.c \
+  src\test_threads.c \
+  src\test_vec_comp.c
 
-MEX_RC     = "$(MATLABROOT)\extern\include\mexversion.rc"
+mexsrc = \
+  toolbox\aib\vl_aib.c \
+  toolbox\aib\vl_aibhist.c \
+  toolbox\geometry\vl_irodr.c \
+  toolbox\geometry\vl_rodr.c \
+  toolbox\imop\vl_imdisttf.c \
+  toolbox\imop\vl_imintegral.c \
+  toolbox\imop\vl_imsmooth.c \
+  toolbox\imop\vl_imwbackwardmx.c \
+  toolbox\imop\vl_tpsumx.c \
+  toolbox\kmeans\vl_hikmeans.c \
+  toolbox\kmeans\vl_hikmeanspush.c \
+  toolbox\kmeans\vl_ikmeans.c \
+  toolbox\kmeans\vl_ikmeanspush.c \
+  toolbox\kmeans\vl_kmeans.c \
+  toolbox\misc\vl_alldist.c \
+  toolbox\misc\vl_alldist2.c \
+  toolbox\misc\vl_binsearch.c \
+  toolbox\misc\vl_binsum.c \
+  toolbox\misc\vl_cummax.c \
+  toolbox\misc\vl_getpid.c \
+  toolbox\misc\vl_hog.c \
+  toolbox\misc\vl_homkermap.c \
+  toolbox\misc\vl_ihashfind.c \
+  toolbox\misc\vl_ihashsum.c \
+  toolbox\misc\vl_inthist.c \
+  toolbox\misc\vl_kdtreebuild.c \
+  toolbox\misc\vl_kdtreequery.c \
+  toolbox\misc\vl_lbp.c \
+  toolbox\misc\vl_localmax.c \
+  toolbox\misc\vl_maketrainingset.c \
+  toolbox\misc\vl_pegasos.c \
+  toolbox\misc\vl_sampleinthist.c \
+  toolbox\misc\vl_simdctrl.c \
+  toolbox\misc\vl_svmpegasos.c \
+  toolbox\misc\vl_twister.c \
+  toolbox\misc\vl_version.c \
+  toolbox\mser\vl_erfill.c \
+  toolbox\mser\vl_mser.c \
+  toolbox\quickshift\vl_quickshift.c \
+  toolbox\sift\vl_covdet.c \
+  toolbox\sift\vl_dsift.c \
+  toolbox\sift\vl_sift.c \
+  toolbox\sift\vl_siftdescriptor.c \
+  toolbox\sift\vl_ubcmatch.c \
+  toolbox\slic\vl_slic.c
 
-MEX_CFLAGS = $(CFLAGS) \
-             /I"$(MATLABROOT)\extern\include" \
-             /Itoolbox \
-             /DMATLAB_MEX_FILE /D_WINDLL
-
-MEX_LFLAGS = $(LFLAGS) \
-             /DLL \
-             /EXPORT:mexFunction \
-             /LIBPATH:"$(bindir)" vl.lib \
-             /LIBPATH:"$(MATLABLIB)" libmx.lib libmex.lib libmat.lib
-
-libsrc =                \
- vl\aib.c               \
- vl\dsift.c             \
- vl\generic.c           \
- vl\getopt_long.c       \
- vl\hikmeans.c          \
- vl\host.c              \
- vl\ikmeans.c           \
- vl\imop.c              \
- vl\imopv.c             \
- vl\imopv_sse2.c        \
- vl\mathop.c            \
- vl\mser.c              \
- vl\pgm.c               \
- vl\random.c            \
- vl\rodrigues.c         \
- vl\sift.c              \
- vl\quickshift.c        \
- vl\stringop.c
- 
-cmdsrc =                \
- src\aib.c              \
- src\mser.c             \
- src\sift.c             \
- src\test_getopt_long.c \
- src\test_host.c        \
- src\test_imopv.c       \
- src\test_mathop.c      \
- src\test_nan.c         \
- src\test_rand.c        \
- src\test_stringop.c
-
-mexsrc =                          \
- toolbox\aib\vl_aib.c             \
- toolbox\aib\vl_aibhist.c         \
- toolbox\geometry\vl_irodr.c      \
- toolbox\geometry\vl_rodr.c       \
- toolbox\imop\vl_imintegral.c     \
- toolbox\imop\vl_imsmooth.c       \
- toolbox\imop\vl_imwbackwardmx.c  \
- toolbox\imop\vl_tpsumx.c         \
- toolbox\kmeans\vl_hikmeans.c     \
- toolbox\kmeans\vl_hikmeanspush.c \
- toolbox\kmeans\vl_ikmeans.c      \
- toolbox\kmeans\vl_ikmeanspush.c  \
- toolbox\misc\vl_alldist2.c       \
- toolbox\misc\vl_binsearch.c      \
- toolbox\misc\vl_binsum.c         \
- toolbox\misc\vl_getpid.c         \
- toolbox\misc\vl_ihashfind.c      \
- toolbox\misc\vl_ihashsum.c       \
- toolbox\misc\vl_inthist.c        \
- toolbox\misc\vl_localmax.c       \
- toolbox\misc\vl_samplinthist.c   \
- toolbox\misc\vl_twister.c        \
- toolbox\misc\vl_whistc.c         \
- toolbox\mser\vl_erfill.c         \
- toolbox\mser\vl_mser.c           \
- toolbox\quickshift\vl_quickshift.c \
- toolbox\sift\vl_dsift.c          \
- toolbox\sift\vl_sift.c           \
- toolbox\sift\vl_siftdescriptor.c \
- toolbox\sift\vl_ubcmatch.c
-
-
-# horrible Make program, horrible code:
+!if "$(ARCH)" == "win32"
 libobj = $(libsrc:vl\=bin\win32\objs\)
 cmdexe = $(cmdsrc:src\=bin\win32\)
-mexdll = $(mexsrc:.c=.mexw32) 
-mexdll = $(mexdll:toolbox\sift=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\mser=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\imop=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\geometry=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\kmeans=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\misc=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\aib=toolbox\mexw32)
-mexdll = $(mexdll:toolbox\quickshift=toolbox\mexw32)
-mexres = $(mexdll:.dll=.res)
+mexdll = $(mexsrc:.c=.mexw32)
+mexdll = $(mexdll:toolbox\sift=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\mser=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\imop=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\geometry=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\kmeans=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\misc=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\aib=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\quickshift=toolbox\mex\mexw32)
+mexdll = $(mexdll:toolbox\slic=toolbox\mex\mexw32)
 mexpdb = $(mexdll:.dll=.pdb)
 
-!if "$(ARCH)" == "win64"
+!elseif "$(ARCH)" == "win64"
 libobj = $(libsrc:vl\=bin\win64\objs\)
 cmdexe = $(cmdsrc:src\=bin\win64\)
-mexdll = $(mexsrc:.c=.mexw64) 
-mexdll = $(mexdll:toolbox\sift=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\mser=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\imop=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\geometry=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\kmeans=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\misc=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\aib=toolbox\mexw64)
-mexdll = $(mexdll:toolbox\quickshift=toolbox\mexw64)
-mexres = $(mexdll:.mexw64=.res)
+mexdll = $(mexsrc:.c=.mexw64)
+mexdll = $(mexdll:toolbox\sift=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\mser=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\imop=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\geometry=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\kmeans=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\misc=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\aib=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\quickshift=toolbox\mex\mexw64)
+mexdll = $(mexdll:toolbox\slic=toolbox\mex\mexw64)
 mexpdb = $(mexdll:.mexw64=.pdb)
 !endif
 
@@ -245,18 +289,30 @@ libobj = $(libobj:.c=.obj)
 cmdexe = $(cmdexe:.c=.exe)
 cmdpdb = $(cmdexe:.exe=.pdb)
 
-!IFDEF MATLABROOT
-all: $(bindir) $(objdir) $(mexdir) $(bindir)\vl.lib $(bindir)\vl.dll $(mexdir)\vl.dll $(cmdexe) $(mexdll) $(mexdir)\$(MSMANIFEST) $(mexdir)\$(MSVCR) $(mexdir)\$(MSVCP) $(mexdir)\$(MSVCM) $(bindir)\$(MSMANIFEST) $(bindir)\$(MSVCR) $(bindir)\$(MSVCP) $(bindir)\$(MSVCM)
-!ELSE
-all: $(bindir) $(objdir) $(bindir)\vl.lib $(bindir)\vl.dll $(cmdexe) $(bindir)\$(MSMANIFEST) $(bindir)\$(MSVCR) $(bindir)\$(MSVCP) $(bindir)\$(MSVCM)
-!ENDIF
+# Visual Studio redistributable files
+MSVCR = Microsoft.VC$(MSVSVER).CRT
+!if $(MSVSVER) <= 90
+# VS <= 2008 needs a manifest too
+bincrt = $(bindir)\msvcr$(MSVSVER).dll $(bindir)\$(MSVCR).manifest
+mexcrt = $(mexdir)\msvcr$(MSVSVER).dll $(mexdir)\$(MSVCR).manifest
+!else
+bincrt = $(bindir)\msvcr$(MSVSVER).dll
+mexcrt = $(mexdir)\msvcr$(MSVSVER).dll
+!endif
 
-BUILD_MEX=@echo .... CC [MEX] $(@R).dll && \
-	$(CC) $(MEX_CFLAGS) /c /Fo"$(@R).obj" "$(<)" && \
-	$(RC) /fo"$(@R).res" $(MEX_RC) && \
-	$(LINK) $(MEX_LFLAGS) "$(@R).res" "$(@R).obj" /OUT:$(@) && \
-	mt /nologo /outputresource:"$(@)";^#2 /manifest "$(@).manifest" && \
-	del "$(@R).obj" "$(@R).exp" "$(@R).lib" "$(@R).res" "$(@).manifest"
+!ifdef MATLABROOT
+all: $(bindir) $(objdir) $(mexdir) \
+     $(bincrt) $(bindir)\vl.lib $(bindir)\vl.dll \
+     $(cmdexe) \
+     $(mexcrt) $(mexdir)\vl.dll $(mexdll)
+!else
+all: $(bindir) $(objdir) \
+     $(bincrt) $(bindir)\vl.lib $(bindir)\vl.dll \
+     $(cmdexe)
+!endif
+
+BUILD_MEX=@echo .... CC [MEX] $(@) && \
+	$(MEX) $(MEX_FLAGS) "$(<)" -output $(@)
 
 # --------------------------------------------------------------------
 #                                                    Maintenance rules
@@ -267,40 +323,43 @@ clean:
 	del /f /Q $(objdir)
 	del /f /Q $(cmdpdb)
 	del /f /Q $(mexpdb)
-	del /f /Q $(mexdir)\$(MSMANIFEST)
-	del /f /Q $(mexdir)\$(MSVCR)
-	del /f /Q $(mexdir)\$(MSVCP)
-	del /f /Q $(mexdir)\$(MSVCM)
-	del /f /Q $(mexdir)\vl.dll
-	del /f /Q $(bindir)\$(MSMANIFEST)
-	del /f /Q $(bindir)\$(MSVCR)
-	del /f /Q $(bindir)\$(MSVCP)
-	del /f /Q $(bindir)\$(MSVCM)
-	del /f /Q $(bindir)\vl.dll
 
-distclean: clean
-	del /f /Q $(cmdexe)
-	del /f /Q $(mexdll)
+archclean:
+	if exist bin\$(ARCH) rmdir /S /Q bin\$(ARCH)
+	if exist $(mexdir) rmdir /S /Q $(mexdir)
+
+distclean:
+	if exist bin rmdir /S /Q bin
+	if exist toolbox\mex rmdir /S /Q toolbox\mex
 
 info:
 	@echo $(mexx)
-	@echo ** bindir     = $(bindir)
-	@echo ** mexdir     = $(mexdir)
-	@echo ** objdir     = $(objdir)
-	@echo ** libsrc     = $(libsrc)
-	@echo ** libobj     = $(libobj)
-	@echo ** cmdsrc     = $(cmdsrc)
-	@echo ** cmdexe     = $(cmdexe)
-	@echo ** mexsrc     = $(mexsrc)
-	@echo ** mexdll     = $(mexdll)
-	@echo ** CC         = $(CC)
-	@echo ** CFLAGS     = $(CFLAGS)
-	@echo ** DLL_CFLAGS = $(DLL_CFLAGS)
-	@echo ** MEX_CFLAGS = $(MEX_CFLAGS)
-	@echo ** BUILD_MEX  = "$(BUILD_MEX)"
-	@echo ** MATLABROOT = $(MATLABROOT)
-	@echo ** MEX_LFLAGS = $(MEX_LFLAGS)
-	@echo ** MEX        = $(MEX)
+	@echo ** bindir      = $(bindir)
+	@echo ** mexdir      = $(mexdir)
+	@echo ** objdir      = $(objdir)
+	@echo ** libsrc      = $(libsrc)
+	@echo ** libobj      = $(libobj)
+	@echo ** cmdsrc      = $(cmdsrc)
+	@echo ** cmdexe      = $(cmdexe)
+	@echo ** mexsrc      = $(mexsrc)
+	@echo ** mexdll      = $(mexdll)
+	@echo ** CC          = $(CC)
+	@echo ** CFLAGS      = $(CFLAGS)
+	@echo ** DLL_CFLAGS  = $(DLL_CFLAGS)
+	@echo ** MEX_FLAGS   = $(MEX_FLAGS)
+	@echo ** BUILD_MEX   = "$(BUILD_MEX)"
+	@echo ** MATLABROOT  = $(MATLABROOT)
+	@echo ** MEX         = $(MEX)
+	@echo ** MEXEXT      = $(MEXEXT)
+	@echo ** MEXOPT      = $(MEXOPT)
+	@echo ** MSVSVER     = $(MSVSVER)
+	@echo ** MSVCROOT    = $(MSVCROOT)
+	@echo ** MSVCR       = $(MSVCR)
+	@echo ** MSVCR_PATH  = $(MSVCR_PATH)
+	@echo ** bincrt      = $(bincrt)
+	@echo ** mexcrt      = $(mexcrt)
+	@echo ** WINSDKROOT  = $(WINSDKROOT)
+	@echo ** DEBUG       = $(DEBUG)
 
 # --------------------------------------------------------------------
 #                                                          Build rules
@@ -317,10 +376,14 @@ $(mexdir) :
 	mkdir $(mexdir)
 
 # --------------------------------------------------------------------
-#                                          Rules to compile VLFeat DLL
+#                                      Rules to compile the VLFeat DLL
 # --------------------------------------------------------------------
 
 # special sources with SSE2 support
+$(objdir)\mathop_sse2.obj : vl\mathop_sse2.c
+	@echo .... CC [+SSE2] $(@)
+	@$(CC) $(CFLAGS) $(DLL_CFLAGS) /arch:SSE2 /D"__SSE2__" /c /Fo"$(@)" "vl\$(@B).c"
+
 $(objdir)\imopv_sse2.obj : vl\imopv_sse2.c
 	@echo .... CC [+SSE2] $(@)
 	@$(CC) $(CFLAGS) $(DLL_CFLAGS) /arch:SSE2 /D"__SSE2__" /c /Fo"$(@)" "vl\$(@B).c"
@@ -333,7 +396,7 @@ $(objdir)\imopv_sse2.obj : vl\imopv_sse2.c
 # Link VLFeat DLL
 $(bindir)\vl.dll : $(libobj)
 	@echo .. LINK [DLL] $(@R).dll
-	@$(LINK) /DLL  $(LFLAGS) $(**) /OUT:"$(@)"
+	$(LINK) /DLL  $(LFLAGS) $(**) /OUT:"$(@)"
 	@mt /nologo /outputresource:"$(@);#2" /manifest "$(@R).dll.manifest"
 	@-del "$(@R).dll.manifest"
 
@@ -342,8 +405,15 @@ $(bindir)\vl.lib : $(libobj)
 	@echo ... LIB $(@R).lib
 	@lib $(**) /OUT:"$(@)" /NOLOGO
 
+# redistributable: msvcr__.dll => bin/win{32,64}/msvcr__.dll
+$(bindir)\$(MSVCR).manifest : "$(MSVCR_PATH)\$(MSVCR).manifest"
+        copy $(**) "$(@)"
+
+$(bindir)\msvcr$(MSVSVER).dll: "$(MSVCR_PATH)\msvcr$(MSVSVER).dll"
+        copy $(**) "$(@)"
+
 # --------------------------------------------------------------------
-#                                                 Rules to compile EXE
+#                                Rules to compile the VLFeat EXE files
 # --------------------------------------------------------------------
 
 # src\*.c -> $bindir\*.exe
@@ -355,65 +425,83 @@ $(bindir)\vl.lib : $(libobj)
 	@-del "$(@R).obj"
 
 # --------------------------------------------------------------------
-#                                                 Rules to compile MEX
+#                                Rules to compile the VLFeat MEX files
 # --------------------------------------------------------------------
 
+startmatlab:
+	"$(MATLABROOT)/bin/matlab.exe" -nodesktop
+
 # toolbox\*.c -> toolbox\*.dll
-{toolbox\sift}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\sift}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\mser}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\mser}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\imop}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\imop}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\geometry}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\geometry}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\kmeans}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\kmeans}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\aib}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\aib}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\quickshift}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\quickshift}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-{toolbox\misc}.c{$(mexdir)}.$(MEX_SFX):
+{toolbox\misc}.c{$(mexdir)}.$(MEXEXT):
 	$(BUILD_MEX)
 
-# vl.dll => mexw{32,64}/vl.dll
+{toolbox\slic}.c{$(mexdir)}.$(MEXEXT):
+	$(BUILD_MEX)
+
+# vl.dll => mexw{32,64}\vl.dll
 $(mexdir)\vl.dll : $(bindir)\vl.dll
 	copy "$(**)" "$(@)"
 
+# redistributable: msvcr__.dll => bin/win{32,64}/msvcr__.dll
+$(mexdir)\$(MSVCR).manifest : "$(MSVCR_PATH)\$(MSVCR).manifest"
+        copy $(**) "$(@)"
+
+$(mexdir)\msvcr$(MSVSVER).dll: "$(MSVCR_PATH)\msvcr$(MSVSVER).dll"
+        copy $(**) "$(@)"
+
 # --------------------------------------------------------------------
-#                              Rules to copy redistributable libraries
+#                                       Rules to post the binary files
 # --------------------------------------------------------------------
 
-# msvcr__.dll => bin/win{32,64}/msvcr__.dll
-$(bindir)\$(MSMANIFEST): "$(MSVCRLOC)\$(MSMANIFEST)"
-	copy $(**) "$(@)"
+bin-release:
+	echo Fetching remote tags && \
+	$(GIT) fetch --tags && \
+	echo Checking out v$(VER) && \
+	$(GIT) checkout v$(VER)
+	echo Rebuilding binaries for release
+	if exist "bin\$(ARCH)" del /f /Q "bin\$(ARCH)"
+	if exist "bin\mex\$(ARCH)" del /f /Q "toolbox\mex$(ARCH)"
+	nmake /f Makefile.mak ARCH=$(ARCH)
 
-$(bindir)\$(MSVCR): "$(MSVCRLOC)\$(MSVCR)"
-	copy $(**) "$(@)"
-
-$(bindir)\$(MSVCP): "$(MSVCRLOC)\$(MSVCP)"
-	copy $(**) "$(@)"
-
-$(bindir)\$(MSVCM): "$(MSVCRLOC)\$(MSVCM)"
-	copy $(**) "$(@)"
-
-# msvcr__.dll => toolbox/mexw32/msvcr__.dll
-$(mexdir)\$(MSMANIFEST): "$(MSVCRLOC)\$(MSMANIFEST)"
-	copy $(**) "$(@)"
-
-$(mexdir)\$(MSVCR): "$(MSVCRLOC)\$(MSVCR)"
-	copy $(**) "$(@)"
-
-$(mexdir)\$(MSVCP): "$(MSVCRLOC)\$(MSVCP)"
-	copy $(**) "$(@)"
-
-$(mexdir)\$(MSVCM): "$(MSVCRLOC)\$(MSVCM)"
-	copy $(**) "$(@)"
-
+bin-commit: bin-release
+	@echo Fetching remote tags && \
+	$(GIT) fetch --tags
+	@echo Crearing/resetting and checking out branch $(BRANCH) to v$(VER) && \
+	$(GIT) branch -f $(BRANCH) v$(VER) && \
+	$(GIT) checkout $(BRANCH)
+	@echo Adding binaries && \
+	$(GIT) add -f $(bincrt) && \
+	$(GIT) add -f "$(bindir)\vl.lib" && \
+	$(GIT) add -f "$(bindir)\vl.dll" && \
+	$(GIT) add -f $(cmdexe) && \
+	@echo Adding MEX files && \
+	$(GIT) add -f $(mexcrt) && \
+	$(GIT) add -f "$(mexdir)\vl.dll" && \
+	$(GIT) add -f $(mexdll) && \
+	@echo Commiting changes && \
+	$(GIT) commit -m "$(ARCH) binaries for version $(VER)"
+	@echo Commiting and pushing to server the binaries && \
+	$(GIT) push -v --force bin $(BRANCH):refs/heads/$(BRANCH) && \
+	$(GIT) checkout v$(VER) && \
+	$(GIT) branch -D $(BRANCH)

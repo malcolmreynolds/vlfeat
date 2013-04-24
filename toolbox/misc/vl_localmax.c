@@ -3,11 +3,12 @@
  ** description: Find local maximizer of multi-dimensional array.
  **/
 
-/* AUTORIGHTS
-Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
+/*
+Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+All rights reserved.
 
-This file is part of VLFeat, available in the terms of the GNU
-General Public License version 2.
+This file is part of the VLFeat library and is made available under
+the terms of the BSD license (see the COPYING file).
 */
 
 #include <mexutils.h>
@@ -19,12 +20,12 @@ General Public License version 2.
 #define greater(a,b) ((a) > (b)+threshold)
 
 void
-mexFunction(int nout, mxArray *out[], 
+mexFunction(int nout, mxArray *out[],
             int nin, const mxArray *in[])
 {
   int M, N ;
   const double* F_pt ;
-  int ndims ; 
+  int ndims ;
   int pdims = -1 ;
   int* offsets ;
   int* midx ;
@@ -33,12 +34,12 @@ mexFunction(int nout, mxArray *out[],
   int* dims ;
   enum {F=0,THRESHOLD,P} ;
   enum {MAXIMA=0} ;
-  double threshold = - mxGetInf() ; 
+  double threshold = - mxGetInf() ;
 
   /* -----------------------------------------------------------------
    *                                               Check the arguments
    * -------------------------------------------------------------- */
-  
+
   if (nin < 1) {
     mexErrMsgTxt("At least one input argument is required.");
   } else if (nin > 3) {
@@ -46,22 +47,22 @@ mexFunction(int nout, mxArray *out[],
   } else if (nout > 1) {
     mexErrMsgTxt("Too many output arguments");
   }
-  
+
   /* The input must be a real matrix. */
   if (!mxIsDouble(in[F]) || mxIsComplex(in[F])) {
     mexErrMsgTxt("Input must be real matrix.");
   }
-  
+
   if(nin > 1) {
-    if(!uIsRealScalar(in[THRESHOLD])) {
+    if(!vlmxIsPlainScalar(in[THRESHOLD])) {
       mexErrMsgTxt("THRESHOLD must be a real scalar.") ;
     }
     threshold = *mxGetPr(in[THRESHOLD]) ;
   }
-    
+
   if(nin > 2) {
-    if(!uIsRealScalar(in[P]))
-      mexErrMsgTxt("P must be a non-negative integer") ;    
+    if(!vlmxIsPlainScalar(in[P]))
+      mexErrMsgTxt("P must be a non-negative integer") ;
     pdims = (int) *mxGetPr(in[P])  ;
     if(pdims < 0)
       mexErrMsgTxt("P must be a non-negative integer") ;
@@ -81,7 +82,7 @@ mexFunction(int nout, mxArray *out[],
   N = dims[1] ;
   F_pt = mxGetPr(in[F]) ;
 
-  /* 
+  /*
      If there are only two dimensions and if one is singleton, then
      assume that a vector has been provided as input (and treat this
      as a COLUMN matrix with p=1). We do this because Matlab does not
@@ -99,7 +100,7 @@ mexFunction(int nout, mxArray *out[],
   /* search the local maxima along the first p dimensions only */
   if(pdims < 0)
     pdims = ndims ;
-  
+
   if(pdims > ndims) {
     mxFree(dims) ;
     mexErrMsgTxt("P must not be greater than the number of dimensions") ;
@@ -107,7 +108,7 @@ mexFunction(int nout, mxArray *out[],
 
   /* ------------------------------------------------------------------
    *                                                         Do the job
-   * --------------------------------------------------------------- */  
+   * --------------------------------------------------------------- */
   {
     int maxima_size = M*N ;
     int* maxima_start = mxMalloc(sizeof(int) * maxima_size) ;
@@ -139,7 +140,7 @@ mexFunction(int nout, mxArray *out[],
     neighbors = mxMalloc(sizeof(int) * nneighbors) ;
     i = 0 ;
 
-    while(true) {
+    while(VL_TRUE) {
       if(o != 0 )
         neighbors[i++] = o ;
       h = 0 ;
@@ -151,7 +152,7 @@ mexFunction(int nout, mxArray *out[],
       }
     }
   stop: ;
-        
+
     /* Starts at the corner (1,1,...,1,0,0,...0) */
     for(h = 0 ; h < pdims ; ++h) {
       midx[h] = 1 ;
@@ -172,53 +173,53 @@ mexFunction(int nout, mxArray *out[],
     */
     for(h=0 ; h < pdims ; ++h)
       if(dims[h] < 3) goto end ;
-    
-    while(true) {
+
+    while(VL_TRUE) {
       double v ;
-      bool is_greater; 
+      bool is_greater;
 
       /* Propagate carry along multi index midx */
       h = 0 ;
       while((midx[h]) >= dims[h] - 1) {
         pt += 2*offsets[h] ; /* skip first and last el. */
         midx[h] = 1 ;
-        if(++h >= pdims) 
+        if(++h >= pdims)
           goto next_layer ;
         ++midx[h] ;
       }
-      
+
       /*
-        for(h = 0 ; h < ndims ; ++h ) 
+        for(h = 0 ; h < ndims ; ++h )
           mexPrintf("%d  ", midx[h]) ;
         mexPrintf(" -- %d -- pdims %d \n", pt - F_pt,pdims) ;
       */
-      
+
       /*  Scan neighbors */
       v = *pt ;
       is_greater = (v >= threshold) ;
       i = 0  ;
       while(is_greater && i < nneighbors)
         is_greater &= v > *(pt + neighbors[i++]) ;
-      
+
         /* Add the local maximum */
       if(is_greater) {
         /* Need more space? */
         if(maxima_iterator == maxima_end) {
           maxima_size += M*N ;
-          maxima_start = mxRealloc(maxima_start, 
+          maxima_start = mxRealloc(maxima_start,
                                    maxima_size*sizeof(int)) ;
           maxima_end = maxima_start + maxima_size ;
           maxima_iterator = maxima_end - M*N ;
         }
-        
+
         *maxima_iterator++ = pt - F_pt + 1 ;
       }
-      
+
       /* Go to next element */
       pt += 1 ;
       ++midx[0] ;
       continue ;
-      
+
     next_layer: ;
       if( h >= ndims )
         goto end ;
@@ -227,8 +228,8 @@ mexFunction(int nout, mxArray *out[],
         midx[h] = 0 ;
         if(++h >= ndims)
           goto end ;
-      }      
-    }    
+      }
+    }
   end:;
     /* Return. */
     {
@@ -242,12 +243,12 @@ mexFunction(int nout, mxArray *out[],
         *M_pt++ = *maxima_iterator++ ;
       }
     }
-    
+
     /* Release space. */
     mxFree(offsets) ;
     mxFree(neighbors) ;
     mxFree(midx) ;
-    mxFree(maxima_start) ;     
+    mxFree(maxima_start) ;
   }
   mxFree(dims) ;
 }

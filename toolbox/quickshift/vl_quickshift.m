@@ -18,21 +18,27 @@
 %
 %   [MAP,GAPS,E] = VL_QUICKSHIFT(I, KERNELSIZE, MAXDIST) also returns the estimate
 %   of the density E.
-%   
+%
 %   [MAP,GAPS] = VL_QUICKSHIFT(I, KERNELSIZE) uses a default MAXDIST of 3 * KERNELSIZE.
 %
-%   Notes:
+%   Notes::
 %     The distance between pixels is always measured in image
 %     coordinates (not normalized), so the importance of the color
 %     component should be weighted accordingly before calling this
 %     function.
 %
 %   Options:
-% 
+%
 %   Verbose::
 %     Toggles verbose output.
 %
 %   Medoid::
 %     Run medoid shift instead of quick shift.
+%
+%   See also: VL_HELP().
 
-% AUTORIGHTS
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).

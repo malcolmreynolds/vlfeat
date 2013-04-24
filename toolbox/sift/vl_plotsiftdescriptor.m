@@ -15,22 +15,22 @@ function h=vl_plotsiftdescriptor(d,f,varargin)
 %
 %   The function supports the following options
 %
-%   NumSpatialBins [4]::
+%   NumSpatialBins:: [4]
 %     Number of spatial bins in each spatial direction.
 %
-%   NumOrientBins [8]::
+%   NumOrientBins:: [8]
 %     Number of orientation bis.
 %
-%   Magnif [3.0]::
+%   Magnif:: [3]
 %     Magnification factor.
 %
-%   See also VL_HELP(), VL_SIFT(), VL_PLOTFRAME().
+%   See also: VL_SIFT(), VL_PLOTFRAME(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
 
 magnif = 3.0 ;
 NBP    = 4 ;
@@ -56,7 +56,7 @@ for k=1:2:length(varargin)
     case 'maxv'
       maxv = arg ;
     otherwise
-      error(sprintf('Unknown option ''%s''', opt)) ;     
+      error(sprintf('Unknown option ''%s''', opt)) ;
   end
 end
 
@@ -72,17 +72,17 @@ if nargin > 1
   if (~isempty(f) & size(f,1) < 2 | size(f,1) > 4)
     error('F should be a 2xK, 3xK, 4xK matrix or the empty matrix');
   end
-  
+
   if size(f,1) == 2
     f = [f; 10 * ones(1, size(f,2)) ; 0 * zeros(1, size(f,2))] ;
   end
-  
+
   if size(f,1) == 3
     f = [f; 0 * zeros(1, size(f,2))] ;
   end
-  
+
   if(~isempty(f) & size(f,2) ~= size(d,2))
-    error('D and F have incompatible dimension') ;    
+    error('D and F have incompatible dimension') ;
   end
 end
 
@@ -141,7 +141,7 @@ yc = yc' ;
 xc = repmat(xc(:)',BO,1) ;
 yc = repmat(yc(:)',BO,1) ;
 
-% Do the stars 
+% Do the stars
 th=linspace(0,2*pi,BO+1) ;
 th=th(1:end-1) ;
 xd = repmat(cos(th), 1, BP*BP) ;

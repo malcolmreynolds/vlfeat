@@ -11,11 +11,16 @@ function [tree,asgn] = vl_hikmeans(data,K,nleaves)
 %
 %   TREE is a structure representing the hierarchical clusters.  Each
 %   node of the tree is also a structure with fields:
-%   
-%   DEPTH::    Depth of the tree (only at the root node)
-%   CENTERS::  K cluster centers
-%   SUB::      Array of K node structures representing subtrees 
-%              (this field is missing at leaves).
+%
+%   DEPTH::
+%     Depth of the tree (only at the root node)
+%
+%   CENTERS::
+%     K cluster centers
+%
+%   SUB::
+%     Array of K node structures representing subtrees
+%     (this field is missing at leaves).
 %
 %   ASGN is a matrix with one column per datum and height equal to the
 %   depth of the tree. Each column encodes the branch of the tree that
@@ -26,10 +31,10 @@ function [tree,asgn] = vl_hikmeans(data,K,nleaves)
 %     that the datum X(:,7) corresponds to the branch
 %     ROOT->SUB(1)->SUB(5)->SUB(3).
 %
-%   See also:: VL_HIKMEANSPUSH(), VL_HIKMEANSHIST(), VL_IKMEANS(), VL_HELP()
+%   See also: VL_HIKMEANSPUSH(), VL_HIKMEANSHIST(), VL_IKMEANS(), VL_HELP().
 
-% AUTORIGHTS
-% Copyright 2007 (c) Andrea Vedaldi and Brian Fulkerson
-% 
-% This file is part of VLFeat, available in the terms of the GNU
-% General Public License version 2.
+% Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
+% All rights reserved.
+%
+% This file is part of the VLFeat library and is made available under
+% the terms of the BSD license (see the COPYING file).
