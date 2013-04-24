@@ -22,7 +22,6 @@ $(VLFEAT_DIR)/rodrigues.c \
 $(VLFEAT_DIR)/stringop.c \
 $(VLFEAT_DIR)/getopt_long.c \
 $(VLFEAT_DIR)/host.c \
-$(VLFEAT_DIR)/imop.c \
 $(VLFEAT_DIR)/imopv_sse2.c \
 $(VLFEAT_DIR)/mser.c \
 $(VLFEAT_DIR)/random.c \
@@ -43,7 +42,9 @@ kmeans/vl_hikmeanspush.cpp \
 kmeans/vl_ikmeanspush.cpp \
 py_vlfeat.cpp
 
-CFLAGS += -I$(VLFEAT_DIR)/../  -I/usr/include/python2.5
+CFLAGS += -I$(VLFEAT_DIR)/../
+CFLAGS += -I/usr/local/Cellar/python/2.7.3/Frameworks/Python.framework/Versions/2.7/include/python2.7
+CFLAGS += -I/usr/local/lib/python2.7/site-packages/numpy/core/include
 LFLAGS += -m32 -msse -shared 
 
 OBJS_C=$(SOURCES_C:.c=.o)
@@ -72,6 +73,6 @@ clean:
 ##################################################
 
 $(LIBRARY): $(OBJS)
-	$(CXX) -o $@ $^ $(LFLAGS) -lboost_python-mt-py25
+	$(CXX) -o $@ $^ $(LFLAGS) -lboost_python-mt
 
 ##################################################
