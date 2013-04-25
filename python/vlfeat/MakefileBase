@@ -22,7 +22,7 @@ endif
 
 #################################################
 
-COMP = gcc
+COMP = clang
 
 ifeq ($(COMPILER),icc)
   COMP = icc
@@ -47,7 +47,7 @@ ifeq ($(OS),Linux)
       #LFLAGS += -m32
     endif
   else
-    CXX       = g++
+    CXX       = clang++
     CXXFLAGS  = -pipe -O3 -fPIC
     CXXFLAGS += -funroll-all-loops -ffast-math -ftree-vectorize
     CXXFLAGS += -Wall -W  -Wmissing-braces -Wparentheses -Wno-unknown-pragmas -Wno-long-long
@@ -67,11 +67,11 @@ ifeq ($(OS),Darwin)
   ifeq ($(COMP),icc)
     # ?
   else
-    CXX           = g++
+    CXX           = clang++
     CXXFLAGS      = -pipe -O2
     CXXFLAGS     += -Wall -W -pedantic-errors -Wmissing-braces -Wparentheses -Wno-unknown-pragmas
-    CXXFLAGS     += -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
-    LFLAGS       += -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
+#    CXXFLAGS     += -isysroot /Developer/SDKs/MacOSX10.4u.sdk 
+#    LFLAGS       += -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
   endif
 endif
 

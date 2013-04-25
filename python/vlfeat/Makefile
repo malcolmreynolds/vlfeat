@@ -17,6 +17,7 @@ $(VLFEAT_DIR)/hikmeans.c \
 $(VLFEAT_DIR)/ikmeans.c \
 $(VLFEAT_DIR)/imopv.c \
 $(VLFEAT_DIR)/mathop.c \
+$(VLFEAT_DIR)/mathop_sse2.c \
 $(VLFEAT_DIR)/pgm.c \
 $(VLFEAT_DIR)/rodrigues.c \
 $(VLFEAT_DIR)/stringop.c \
@@ -35,17 +36,19 @@ sift/vl_sift.cpp \
 sift/vl_dsift.cpp \
 sift/vl_siftdescriptor.cpp \
 imop/vl_imsmooth.cpp \
-misc/vl_binsum.cpp \
-kmeans/vl_hikmeans.cpp \
 kmeans/vl_ikmeans.cpp \
 kmeans/vl_hikmeanspush.cpp \
 kmeans/vl_ikmeanspush.cpp \
 py_vlfeat.cpp
+# misc/vl_binsum.cpp \
+# kmeans/vl_hikmeans.cpp \
 
 CFLAGS += -I$(VLFEAT_DIR)/../
 CFLAGS += -I/usr/local/Cellar/python/2.7.3/Frameworks/Python.framework/Versions/2.7/include/python2.7
 CFLAGS += -I/usr/local/lib/python2.7/site-packages/numpy/core/include
-LFLAGS += -m32 -msse -shared 
+LFLAGS += -L/usr/local/Cellar/python/2.7.3/Frameworks/Python.framework/Versions/2.7/lib
+LFLAGS += -L/usr/local/lib
+LFLAGS += -msse -shared -lpython2.7
 
 OBJS_C=$(SOURCES_C:.c=.o)
 OBJS_CPP=$(SOURCES_CPP:.cpp=.o)

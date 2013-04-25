@@ -11,6 +11,7 @@
 
 # Python complied files
 *.pyc
+*.so
 
 # Other generated files and directories
 VERSION
@@ -52,3 +53,6 @@ vc/*
 
 # Opt directory
 opt/*
+
+# Object files
+*.o
