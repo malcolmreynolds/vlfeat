@@ -89,6 +89,7 @@ int check_sorted(double const * keys, int unsigned nkeys)
 	return 1;
 }
 
+
 /** ------------------------------------------------------------------
  ** @brief Python entry point
  **/
@@ -106,18 +107,40 @@ PyObject * vl_sift_python(
 		bool opt_orientations,
 		int opt_verbose)
 {
+
 	// check types
-	assert(image.descr->type_num == PyArray_FLOAT);
-	assert(image.flags & NPY_FORTRAN);
+	if (image.descr->type_num != PyArray_FLOAT) {
+		throw std::runtime_error("image must be of type float");
+		// PyErr_SetString(PyExc_ValueError, "image must be of type float");
+		// return NULL; // hope this works
+	}
+	if (!(image.flags & NPY_FORTRAN)) {
+		throw std::runtime_error("image must be in Fortran order");
+	}
 
 	// check if param values are valid
-	assert(opt_octaves==-1 || opt_octaves>=0);
-	assert(opt_levels==-1 || opt_levels>=0);
-	assert(opt_first_octave==-1 || opt_first_octave>=0);
-	assert(opt_peak_thresh==-1 || opt_peak_thresh>=0);
-	assert(opt_edge_thresh==-1 || opt_edge_thresh>=1);
-	assert(opt_norm_thresh==-1 || opt_norm_thresh>=0);
-	assert(opt_magnif==-1 || opt_magnif>=0);
+	if (opt_octaves < -1) {
+		throw std::runtime_error("opt_octaves must be >= -1");
+	} else if (opt_levels < -1) {
+		throw std::runtime_error("opt_levels must be >= -1");
+	} else if (opt_first_octave < -1) {
+		throw std::runtime_error("opt_first_octave must be >= -1");
+	} else if (opt_peak_thresh < -1) {
+		throw std::runtime_error("opt_peak_thresh must be >= -1");
+	} else if ((opt_edge_thresh < -1) || (opt_edge_thresh == 0)) {
+		throw std::runtime_error("opt_edge_thresh must be >= 1 or == -1");
+	} else if (opt_norm_thresh < -1) {
+		throw std::runtime_error("opt_norm_thresh must be >= -1");
+	} else if (opt_magnif < -1) {
+		throw std::runtime_error("opt_magnif must be >= -1");
+	}
+
+	// assert(opt_levels==-1 || opt_levels>=0);
+	// assert(opt_first_octave==-1 || opt_first_octave>=0);
+	// assert(opt_peak_thresh==-1 || opt_peak_thresh>=0);
+	// assert(opt_edge_thresh==-1 || opt_edge_thresh>=1);
+	// assert(opt_norm_thresh==-1 || opt_norm_thresh>=0);
+	// assert(opt_magnif==-1 || opt_magnif>=0);
 
 	enum
 	{

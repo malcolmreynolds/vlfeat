@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def vl_plotframe(frames, color='#00ff00', linewidth=2, eps=1e-9):
+def plot_frame(frames, color='#00ff00', linewidth=2, eps=1e-9):
     """VL_PLOTFRAME  Plot feature frame
     VL_PLOTFRAME(FRAME) plots the frames FRAME.  Frames are attributed
     image regions (as, for example, extracted by a feature detector). A
@@ -179,9 +179,54 @@ def frame2oell(frames, eps=1e-9):
     return eframes
 
 
-def vl_plotsiftdescriptor(descs, frames, color='g',
-                          num_spatial_bins=4, num_orient_bins=8,
-                          magnif=3, linewidth=1, maxv=None):
+def get_sift_descriptor_plot_coords(descs, frames,
+                                    num_spatial_bins=4, num_orient_bins=8,
+                                    magnif=3, linewidth=1, maxv=None):
+    """Just gets the lines needed to plot the frames, doesn't actually
+    do the plotting"""
+    desc_size, num_descs = descs.shape
+    if desc_size != (num_spatial_bins ** 2) * num_orient_bins:
+        raise ValueError('number of rows of descs')
+
+    if frames is None:
+        frames = np.tile(np.array([[0, 0, 1, 0]]).T, (1, num_descs))
+
+    frame_type, num_frames = frames.shape
+
+    if num_frames != num_descs:
+        raise ValueError("number of descriptors != number of frames")
+
+    if frame_type == 2:
+        frames = np.vstack([frames, 10 * np.ones(num_frames),
+                            np.zeros(num_frames)])
+    elif frame_type == 3:
+        frames = np.vstack([frames, np.zeros(num_frames)])
+    elif frame_type != 4:
+        raise ValueError('frames.shape[0] must be in [2, 3, 4]')
+
+    x_all, y_all = np.array([]), np.array([])
+
+    descs = descs.astype(np.float)
+
+    for k in range(num_descs):
+        sbp = magnif * frames[2, k]
+        theta = frames[3, k]
+        c, s = np.cos(theta), np.sin(theta)
+
+        xs, ys = render_descr(descs[:, k], num_spatial_bins, num_orient_bins,
+                              maxv=maxv)
+        new_x = sbp * (c*xs - s*ys) + frames[0, k]
+        new_y = sbp * (s*xs + c*ys) + frames[1, k]
+
+        x_all = np.hstack([x_all, new_x])
+        y_all = np.hstack([y_all, new_y])
+
+    return x_all, y_all
+
+
+def plot_sift_descriptor(descs, frames, color='g',
+                         num_spatial_bins=4, num_orient_bins=8,
+                         magnif=3, linewidth=1, maxv=None):
     """VL_PLOTSIFTDESCRIPTOR(D) plots the SIFT descriptors D, stored as
     columns of the matrix D. D has the same format used by VL_SIFT().
 

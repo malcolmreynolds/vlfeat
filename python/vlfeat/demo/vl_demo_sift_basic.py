@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 import vlfeat
-from vlfeat.plotop.vl_plot import vl_plotframe, vl_plotsiftdescriptor
+from vlfeat.plotop.vl_plot import plot_frame, plot_sift_descriptor
 from numpy.random import shuffle
 
 import skimage.data as skd
@@ -30,19 +30,18 @@ if __name__ == '__main__':
     sel = numpy.arange(f.shape[1])
     shuffle(sel)
     # sel = np.array([0], dtype=np.int)
-    vl_plotframe(f[:, sel[:num_sifts_to_plot]], color='k', linewidth=3)
-    vl_plotframe(f[:, sel[:num_sifts_to_plot]], color='y')
-    vl_plotsiftdescriptor(d[:, sel[:num_sifts_to_plot]],
-                          f[:, sel[:num_sifts_to_plot]])
+    plot_frame(f[:, sel[:num_sifts_to_plot]], color='k', linewidth=3)
+    plot_frame(f[:, sel[:num_sifts_to_plot]], color='y')
+    plot_sift_descriptor(d[:, sel[:num_sifts_to_plot]],
+                         f[:, sel[:num_sifts_to_plot]])
     plt.title('%d randomly chosen SIFT frames' % num_sifts_to_plot)
 
-#   h3 = vl_plotsiftdescriptor(d(:,sel),f(:,sel)) ;
+#   h3 = plot_sift_descriptor(d(:,sel),f(:,sel)) ;
 #   set(h3,'color','k','linewidth',2) ;
-#   h4 = vl_plotsiftdescriptor(d(:,sel),f(:,sel)) ;
+#   h4 = plot_sift_descriptor(d(:,sel),f(:,sel)) ;
 #   set(h4,'color','g','linewidth',1) ;
-#   h1   = vl_plotframe(f(:,sel)) ; set(h1,'color','k','linewidth',3) ;
-#   h2   = vl_plotframe(f(:,sel)) ; set(h2,'color','y','linewidth',2) ;
-#   
+#   h1   = plot_frame(f(:,sel)) ; set(h1,'color','k','linewidth',3) ;
+#   h2   = plot_frame(f(:,sel)) ; set(h2,'color','y','linewidth',2) ;
 #   vl_demo_print('sift_basic_3') ;
 
     # --------------------------------------------------------------------
@@ -57,10 +56,10 @@ if __name__ == '__main__':
     f, d = vlfeat.vl_sift(I, frames=fc, verbose=False)
 
 
-#   h3   = vl_plotsiftdescriptor(d,f) ;  set(h3,'color','k','linewidth',3) ;
-#   h4   = vl_plotsiftdescriptor(d,f) ;  set(h4,'color','g','linewidth',2) ;
-    vl_plotframe(f, color='k', linewidth=4)
-    vl_plotframe(f, color='y', linewidth=2)
+#   h3   = plot_sift_descriptor(d,f) ;  set(h3,'color','k','linewidth',3) ;
+#   h4   = plot_sift_descriptor(d,f) ;  set(h4,'color','g','linewidth',2) ;
+    plot_frame(f, color='k', linewidth=4)
+    plot_frame(f, color='y', linewidth=2)
     
     print 'sift_basic_4'
 
@@ -72,10 +71,10 @@ if __name__ == '__main__':
     fc = numpy.array(numpy.atleast_2d(fc).transpose(), order='F')
     f, d = vlfeat.vl_sift(I, frames=fc, orientations=True) ;
     
-#   h3   = vl_plotsiftdescriptor(d,f) ;  set(h3,'color','k', 'linewidth',3) ;
-#   h4   = vl_plotsiftdescriptor(d,f) ;  set(h4,'color','g', 'linewidth',2) ;
-    vl_plotframe(f, color='k', linewidth=4)
-    vl_plotframe(f, color='y', linewidth=2)
+#   h3   = plot_sift_descriptor(d,f) ;  set(h3,'color','k', 'linewidth',3) ;
+#   h4   = plot_sift_descriptor(d,f) ;  set(h4,'color','g', 'linewidth',2) ;
+    plot_frame(f, color='k', linewidth=4)
+    plot_frame(f, color='y', linewidth=2)
     
     print 'sift_basic_5'
 
