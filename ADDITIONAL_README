@@ -1,0 +1,22 @@
+This is my attempt to merge Mikael Rousson's work on python bindings for vlfeat, 
+(which as far as I can see hasn't been worked on for 3 years):
+https://github.com/mmmikael/vlfeat
+
+with the latest vlfeat development from:
+
+https://github.com/vlfeat/vlfeat
+
+I have done a bunch of hacking it together to get it to compile - in particular,
+one linking error I couldn't track down led me to comment out a bunch of 
+the functionality in py_vlfeat.cpp because all I'm really interested in for
+my own project is the SIFT functionality. I also did a bunch of non portable
+stuff to the makefiles to get it to compile.
+
+All I can say is that I have successfully computed SIFT descriptors (which look
+reasonable) from images in Python with this version. This should be considered
+ALPHA / RESEARCH quality code! It is almost 100% guaranteed to mess up your day
+if you rely on it for anything serious!
+
+Malcolm Reynolds
+malcolm.reynolds@gmail.com
+github.com/malcolmreynolds
